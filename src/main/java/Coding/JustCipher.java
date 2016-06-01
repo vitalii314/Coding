@@ -1,6 +1,5 @@
 package Coding;
 
-import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -10,14 +9,14 @@ import java.security.MessageDigest;
 /**
  * Created by user on 29.05.2016.
  */
-public class Application {
+public class JustCipher {
 
     public static byte[] encrypt(String text, String password) throws Exception {
         byte[] cipherText = null;
         byte[] pass = MessageDigest.getInstance("MD5").digest(password.getBytes());
         Key key = new SecretKeySpec(pass, "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
+        javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
+        cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, key);
         cipherText = cipher.doFinal(text.getBytes());
         return cipherText;
     }
@@ -26,8 +25,8 @@ public class Application {
         byte[] dectyptedText = null;
         byte[] pass = MessageDigest.getInstance("MD5").digest(password.getBytes());
         Key key = new SecretKeySpec(pass,"AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
+        javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
+        cipher.init(javax.crypto.Cipher.DECRYPT_MODE, key);
         dectyptedText = cipher.doFinal(text);
         return new String(dectyptedText);
     }
