@@ -29,7 +29,7 @@ public class Bot5 {
 
     public void makeMove2(Seed seed) {
         maximin(seed);
-        playGround.doStep(tempMoves[0][0],tempMoves[0][1]);
+        playGround.doStep(move[0], move[1]);
 
     }
 
@@ -37,7 +37,7 @@ public class Bot5 {
         if (count >= depth || playGround.isFinished()) {
             return heruistic(playGround, seed);
         }
-        int score = (count+1)%2==0?1000:-1000;
+        int score = (count + 1) % 2 == 0 ? 1000 : -1000;
         for (int i = 0; i < playGround.getBoard().cells.length; i++) {
             for (int j = 0; j < playGround.getBoard().cells[i].length; j++) {
                 if (playGround.getBoard().cells[i][j].content == Seed.EMPTY &&
@@ -50,7 +50,8 @@ public class Bot5 {
 //                    } else {
 //                        tempSeed = (seed==Seed.CROSS?Seed.NOUGHT:Seed.CROSS);
 //                    }
-                    if (count!=0) playGround.setCurrentPlayer(count % 2 != 0 ? seed : (seed == Seed.CROSS ? Seed.NOUGHT : Seed.CROSS));
+                    if (count != 0)
+                        playGround.setCurrentPlayer(count % 2 != 0 ? seed : (seed == Seed.CROSS ? Seed.NOUGHT : Seed.CROSS));
 
                     //playGround.setCurrentPlayer(tempSeed);
                     playGround.doStep(i, j);
@@ -62,11 +63,19 @@ public class Bot5 {
                     System.out.println(playGround.print());
                     int s = maximin(seed);
                     //if (s>score) score = s;
-                    if (count%2==0) {
-                        if (s<score) score = s;
-                    } else {
-                        if (s>score) score = s;
+                    if (count % 2 == 0) {
+                        if (s < score) {
+                            score = s;
+                        }
+                    } else if (s > score) {
+                        score = s;
+                        if (count == 1) {
+                            move[0] = tempMoves[0][0];
+                            move[1] = tempMoves[0][1];
+                        }
+
                     }
+
 
                     System.out.println("count = " + count + " Value = " + s);
                     System.out.println("Score = " + score);
@@ -144,7 +153,7 @@ public class Bot5 {
         do {
             System.out.println("******************************");
             scan.nextLine();
-            System.out.println("CRU PLAYER= "+playGround.getCurrentPlayer());
+            System.out.println("CRU PLAYER= " + playGround.getCurrentPlayer());
             makeMove2(Seed.CROSS);
             System.out.println(this.playGround.print());
             System.out.println("*********************************");
@@ -174,7 +183,7 @@ public class Bot5 {
     public static void main(String[] args) {
         Bot5 bot5 = new Bot5();
         bot5.start();
-        System.out.println(bot5.tempMoves[0][0]+","+ bot5.tempMoves[0][1]);
+        System.out.println(bot5.tempMoves[0][0] + "," + bot5.tempMoves[0][1]);
         bot5.play();
 
 
