@@ -6,13 +6,14 @@ package Bot5;
 
 import Bot5.playground.Seed;
 import Bot5.playground.SimplePlayGround;
+import Bot5.playground.State;
 
 import java.util.Scanner;
 
 public class Bot5 {
 
     public int depth = 3;
-    private SimplePlayGround playGround = new SimplePlayGround(3, 3);
+    private SimplePlayGround playGround = new SimplePlayGround(10, 10, 4);
     private int[] move = new int[2];
     private int[][] tempMoves = new int[depth][2];
     int count = 0;
@@ -76,7 +77,7 @@ public class Bot5 {
                     playGround.doStep(i, j);
                     tempMoves[count - 1][0] = i;
                     tempMoves[count - 1][1] = j;
-                    System.out.println(playGround.print());
+                    //System.out.println(playGround.print());
 
                     int s = maximinWithAlphaBeta((count % 2 != 0 ? score : alpha), (count % 2 != 0 ? beta : score), seed);
 
@@ -100,8 +101,8 @@ public class Bot5 {
                     }
 
 
-                    System.out.println("count = " + count + " Value = " + s);
-                    System.out.println("Score = " + score);
+                    //System.out.println("count = " + count + " Value = " + s);
+                    //System.out.println("Score = " + score);
 
                 }
 
@@ -110,6 +111,10 @@ public class Bot5 {
         return score;
     }
 
+    /**
+     * A simple evaluation function,
+     * evaluates: win, loose, draw, none
+     */
     public int evaluate(SimplePlayGround playGround, Seed seed) {
         if (!playGround.isFinished()) return 0;
         if (playGround.getBoard().hasWon(seed)) {
@@ -124,9 +129,75 @@ public class Bot5 {
         }
     }
 
+    /**
+     * Advanced evaluation function
+     * evaluates
+     * how many player's fields a certain move complete
+     * how many opponent's fields a certain move destroy
+     */
+
+    public int evaluateAdvanced(SimplePlayGround playGround, Seed seed, int i, int j) {
+        int countTotal;
+        //horizontal player's
+        int count1 = 0;
+        while (((j + count1 + 1) < playGround.getBoard().COLS) &&
+                playGround.getBoard().cells[i][j + count1 + 1].content == seed) {
+            count1++;
+        }
+        int count2 = 0;
+        while ((j - count2 - 1 >= 0) &&
+                playGround.getBoard().cells[i][j - count2 - 1].content == seed) {
+            count2++;
+        }
+        countTotal = count1 + count2;
+        // vertikal player's
+        count1 = 0;
+        while ((i + count1 + 1) < playGround.getBoard().ROWS &&
+                playGround.getBoard().cells[i + count1 + 1][j].content == seed) {
+            count1++;
+        }
+        count2 = 0;
+        while ((i - count2 - 1) >= 0 &&
+                playGround.getBoard().cells[i - count2 - 1][j].content == seed) {
+            count2++;
+        }
+        countTotal = countTotal + count1 + count2;
+        // player's diagonal 1
+        count1 = 0;
+        while ((i + count1 + 1) < playGround.getBoard().ROWS &&
+                (j + count1 + 1) < playGround.getBoard().COLS &&
+                playGround.getBoard().cells[i + count1 + 1][j + count1 + 1].content == seed) {
+            count1++;
+        }
+        count2 = 0;
+        while ((i - count2 - 1) >= 0 && (j - count2 - 1) >= 0 &&
+                playGround.getBoard().cells[i - count2 - 1][j - count2 - 1].content == seed) {
+            count2++;
+        }
+        countTotal = countTotal + count1 + count2;
+
+        // player's diagonal 2
+        count1 = 0;
+        while ((i - count1 - 1) >= 0 && (j + count1 + 1) < playGround.getBoard().COLS &&
+                playGround.getBoard().cells[i - count1 - 1][j + count1 + 1].content == seed) {
+            count1++;
+        }
+        count2 = 0;
+        while ((i + count2 + 1) < playGround.getBoard().ROWS && (j - count2 - 1) >= 0 &&
+                playGround.getBoard().cells[i + count2 + 1][j - count2 - 1].content == seed) {
+            count2++;
+        }
+        countTotal = countTotal + count1 + count2;
+
+
+        return countTotal;
+
+    }
+
+
     public void makeMove(Seed seed) {
         maximinWithAlphaBeta(-1000, 1000, seed);
-        playGround.doStep(move[0], move[1]);
+        System.out.println(playGround.doStep(move[0], move[1]));
 
     }
 
@@ -146,8 +217,9 @@ public class Bot5 {
         do {
             System.out.println("******************************");
             scan.nextLine();
-            System.out.println("CRU PLAYER= " + playGround.getCurrentPlayer());
             makeMove(Seed.CROSS);
+            System.out.println("CPU MOVE");
+            System.out.println("Current player- " + playGround.getCurrentPlayer());
             System.out.println(this.playGround.print());
             System.out.println("*********************************");
 
@@ -158,11 +230,14 @@ public class Bot5 {
                 do {
                     a = scan.nextInt();
                     b = scan.nextInt();
-                    if (playGround.getBoard().cells[a][b].content != Seed.EMPTY) {
+                    State state = playGround.doStep(a, b);
+                    if (state == State.INVALID_INPUT_DATA) {
                         System.out.println("Сдейлай нормальный ход");
+                    } else {
+                        System.out.println(state);
+                        break;
                     }
-                } while (playGround.getBoard().cells[a][b].content != Seed.EMPTY);
-                playGround.doStep(a, b);
+                } while (playGround.getCurrentPlayer() == Seed.NOUGHT);
                 System.out.println("**********************************");
                 System.out.println(playGround.print());
                 System.out.println("***********************************");
@@ -172,13 +247,14 @@ public class Bot5 {
         scan.close();
     }
 
-
     public static void main(String[] args) {
+
         Bot5 bot5 = new Bot5();
         bot5.start();
         System.out.println(bot5.tempMoves[0][0] + "," + bot5.tempMoves[0][1]);
         bot5.play();
 
-
     }
 }
+
+

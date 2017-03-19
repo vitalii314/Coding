@@ -6,6 +6,7 @@ public class Board {  // save as Board.java
     //public static final int COLS = 3;
     public int ROWS;
     public int COLS;
+    private int numberToWin;
     public int[][] winningFields = new int[3][2];
 
     // package access
@@ -15,9 +16,10 @@ public class Board {  // save as Board.java
     /**
      * Constructor to initialize the game board
      */
-    public Board(int rows, int cols) {
+    public Board(int rows, int cols, int numberToWin) {
         this.ROWS = rows;
         this.COLS = cols;
+        this.numberToWin = numberToWin;
         cells = new Cell[ROWS][COLS];  // allocate the array
         for (int row = 0; row < ROWS; ++row) {
             for (int col = 0; col < COLS; ++col) {
@@ -46,53 +48,123 @@ public class Board {  // save as Board.java
      * (currentRow, currentCol)
      */
     public boolean hasWon(Seed theSeed) {
-        if (cells[currentRow][0].content == theSeed         // 3-in-the-row
-                && cells[currentRow][1].content == theSeed
-                && cells[currentRow][2].content == theSeed) {
-            winningFields[0][0] = currentRow;
-            winningFields[0][1] = 0;
-            winningFields[1][0] = currentRow;
-            winningFields[2][0] = currentRow;
-            winningFields[1][1] = 1;
-            winningFields[2][1] = 2;
-            return true;
+//        if (cells[currentRow][0].content == theSeed         // 3-in-the-row
+//                && cells[currentRow][1].content == theSeed
+//                && cells[currentRow][2].content == theSeed) {
+//            winningFields[0][0] = currentRow;
+//            winningFields[0][1] = 0;
+//            winningFields[1][0] = currentRow;
+//            winningFields[2][0] = currentRow;
+//            winningFields[1][1] = 1;
+//            winningFields[2][1] = 2;
+//            return true;
+//
+//        }
 
+        int count1 = 0;
+        while (((currentCol+count1+1)<COLS)&&
+                cells[currentRow][currentCol+ count1+1].content==theSeed) {
+            count1++;
         }
-         if (cells[0][currentCol].content == theSeed      // 3-in-the-column
-                && cells[1][currentCol].content == theSeed
-                && cells[2][currentCol].content == theSeed) {
-             winningFields[0][0] = 0;
-             winningFields[0][1] = currentCol;
-             winningFields[1][0] = 1;
-             winningFields[1][1] = currentCol;
-             winningFields[2][0] = 2;
-             winningFields[2][1] = currentCol;
-             return true;
-         }
-                if ( currentRow == currentCol            // 3-in-the-diagonal
-                && cells[0][0].content == theSeed
-                && cells[1][1].content == theSeed
-                && cells[2][2].content == theSeed) {
-                    winningFields[0][0]=0;
-                    winningFields[0][1]=0;
-                    winningFields[1][0]=1;
-                    winningFields[1][1]= 1;
-                    winningFields[2][0] = 2;
-                    winningFields[2][1] = 2;
-                    return  true;
-                }
-                if ( currentRow + currentCol == 2    // 3-in-the-opposite-diagonal
-                && cells[0][2].content == theSeed
-                && cells[1][1].content == theSeed
-                && cells[2][0].content == theSeed) {
-                    winningFields[0][0]=0;
-                    winningFields[0][1]=2;
-                    winningFields[1][0]=1;
-                    winningFields[1][1]=1;
-                    winningFields[2][0]=2;
-                    winningFields[2][1]=0;
-                    return true;
-                }
+        int count2 = 0;
+        while ((currentCol-count2-1>=0)&&cells[currentRow][currentCol-count2-1].content==theSeed) {
+            count2++;
+        }
+        if ((count1+count2)==numberToWin-1&&
+                cells[currentRow][currentCol].content==theSeed) {
+            System.out.println("horizontal +"+theSeed);
+            return true;
+        }
+
+
+//         if (cells[0][currentCol].content == theSeed      // 3-in-the-column
+//                && cells[1][currentCol].content == theSeed
+//                && cells[2][currentCol].content == theSeed) {
+//             winningFields[0][0] = 0;
+//             winningFields[0][1] = currentCol;
+//             winningFields[1][0] = 1;
+//             winningFields[1][1] = currentCol;
+//             winningFields[2][0] = 2;
+//             winningFields[2][1] = currentCol;
+//             return true;
+//         }
+
+        count1 = 0;
+        while ((currentRow+count1+1)<ROWS&&
+                cells[currentRow+count1+1][currentCol].content==theSeed) {
+            count1++;
+        }
+        count2 = 0;
+        while ((currentRow-count2-1)>=0&&
+                cells[currentRow-count2-1][currentCol].content==theSeed) {
+            count2++;
+        }
+        if ((count1+count2)==numberToWin-1&&
+                cells[currentRow][currentCol].content==theSeed) {
+            System.out.println("vertikal");
+            return true;
+        }
+
+
+//                if ( currentRow == currentCol            // 3-in-the-diagonal
+//                && cells[0][0].content == theSeed
+//                && cells[1][1].content == theSeed
+//                && cells[2][2].content == theSeed) {
+//                    winningFields[0][0]=0;
+//                    winningFields[0][1]=0;
+//                    winningFields[1][0]=1;
+//                    winningFields[1][1]= 1;
+//                    winningFields[2][0] = 2;
+//                    winningFields[2][1] = 2;
+//                    return  true;
+//                }
+//                if ( currentRow + currentCol == 2    // 3-in-the-opposite-diagonal
+//                && cells[0][2].content == theSeed
+//                && cells[1][1].content == theSeed
+//                && cells[2][0].content == theSeed) {
+//                    winningFields[0][0]=0;
+//                    winningFields[0][1]=2;
+//                    winningFields[1][0]=1;
+//                    winningFields[1][1]=1;
+//                    winningFields[2][0]=2;
+//                    winningFields[2][1]=0;
+//                    return true;
+//                }
+
+        //diagonal 1
+        count1 = 0;
+        while ((currentRow+count1+1)<ROWS&&(currentCol+count1+1)<COLS&&
+                cells[currentRow+count1+1][currentCol+count1+1].content==theSeed) {
+            count1++;
+        }
+        count2 = 0;
+        while ((currentRow-count2-1)>=0&&(currentCol-count2-1)>=0&&
+        cells[currentRow-count2-1][currentCol-count2-1].content==theSeed) {
+            count2++;
+        }
+        if ((count1+count2)==numberToWin-1&&
+                cells[currentRow][currentCol].content==theSeed) {
+            System.out.println("diagonal 1");
+            return true;
+        }
+
+        //diagonal 2
+        count1 = 0;
+        while ((currentRow-count1-1)>=0&&(currentCol+count1+1)<COLS&&
+                cells[currentRow-count1-1][currentCol+count1+1].content==theSeed) {
+            count1++;
+        }
+        count2 = 0;
+        while ((currentRow+count2+1)<ROWS&&(currentCol-count2-1)>=0&&
+                cells[currentRow+count2+1][currentCol-count2-1].content==theSeed) {
+            count2++;
+        }
+        if ((count1+count2)==numberToWin-1&&
+                cells[currentRow][currentCol].content==theSeed) {
+            System.out.println("diagonal 2");
+            return true;
+        }
+
         return false;
     }
 
