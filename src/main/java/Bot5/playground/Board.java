@@ -6,7 +6,7 @@ public class Board {  // save as Board.java
     //public static final int COLS = 3;
     public int ROWS;
     public int COLS;
-    private int numberToWin;
+    public int numberToWin;
     public int[][] winningFields = new int[3][2];
 
     // package access
@@ -70,9 +70,8 @@ public class Board {  // save as Board.java
         while ((currentCol-count2-1>=0)&&cells[currentRow][currentCol-count2-1].content==theSeed) {
             count2++;
         }
-        if ((count1+count2)==numberToWin-1&&
+        if ((count1+count2)>=numberToWin-1&&
                 cells[currentRow][currentCol].content==theSeed) {
-            System.out.println("horizontal +"+theSeed);
             return true;
         }
 
@@ -99,9 +98,8 @@ public class Board {  // save as Board.java
                 cells[currentRow-count2-1][currentCol].content==theSeed) {
             count2++;
         }
-        if ((count1+count2)==numberToWin-1&&
+        if ((count1+count2)>=numberToWin-1&&
                 cells[currentRow][currentCol].content==theSeed) {
-            System.out.println("vertikal");
             return true;
         }
 
@@ -142,7 +140,7 @@ public class Board {  // save as Board.java
         cells[currentRow-count2-1][currentCol-count2-1].content==theSeed) {
             count2++;
         }
-        if ((count1+count2)==numberToWin-1&&
+        if ((count1+count2)>=numberToWin-1&&
                 cells[currentRow][currentCol].content==theSeed) {
             System.out.println("diagonal 1");
             return true;
@@ -159,7 +157,7 @@ public class Board {  // save as Board.java
                 cells[currentRow+count2+1][currentCol-count2-1].content==theSeed) {
             count2++;
         }
-        if ((count1+count2)==numberToWin-1&&
+        if ((count1+count2)>=numberToWin-1&&
                 cells[currentRow][currentCol].content==theSeed) {
             System.out.println("diagonal 2");
             return true;
