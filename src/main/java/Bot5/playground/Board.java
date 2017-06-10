@@ -142,7 +142,6 @@ public class Board {  // save as Board.java
         }
         if ((count1+count2)>=numberToWin-1&&
                 cells[currentRow][currentCol].content==theSeed) {
-            System.out.println("diagonal 1");
             return true;
         }
 
@@ -159,7 +158,6 @@ public class Board {  // save as Board.java
         }
         if ((count1+count2)>=numberToWin-1&&
                 cells[currentRow][currentCol].content==theSeed) {
-            System.out.println("diagonal 2");
             return true;
         }
 

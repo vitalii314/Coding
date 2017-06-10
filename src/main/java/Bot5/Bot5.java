@@ -6,22 +6,20 @@ package Bot5;
 
 import Bot5.playground.Seed;
 import Bot5.playground.SimplePlayGround;
-import Bot5.playground.State;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Bot5 {
-    List<int[][]> randomMoveList = new ArrayList<int[][]>();
-    public int depth = 3;
-    private SimplePlayGround playGround = new SimplePlayGround(3, 3, 3);
-    private int[] move = new int[2];
-    int[][] tempMoves = new int[depth][2];
-    int count = 0;
-    FileWriter fw;
+    private static List<int[][]> randomMoveList = new ArrayList<int[][]>();
+    public static int depth = 10;
+    private static SimplePlayGround playGround;
+    private static int[] move = new int[2];
+    static int[][] tempMoves = new int[depth][2];
+    static int count = 0;
+    static boolean mFlag;  // this variables are used to adopt alpha beta
+    static boolean mWasFinished; //with random move selection
+                                // they show if returning score is "fair"
 
 
     public int maximin(Seed seed) {
@@ -66,14 +64,17 @@ public class Bot5 {
         return score;
     }
 
-    public int maximinWithAlphaBeta(int alpha, int beta, Seed seed) {
+    public static int maximinWithAlphaBeta(int alpha, int beta, Seed seed) {
         if (count >= depth || playGround.isFinished()) {
+            //if (playGround.isFinished()) System.out.println("PLAYGROUND FINISHED");
+            if (playGround.isFinished()) mWasFinished = true;
             return evaluateAdvanced(playGround,
                     seed == Seed.CROSS ? Seed.NOUGHT : Seed.CROSS, tempMoves[count - 1][0], tempMoves[count - 1][1]);
         }
 
-        int score = (count + 1) % 2 == 0 ? 1000 : -1000;  //without alpha beta
-        //int score = (count + 1) % 2 == 0 ? beta : alpha;
+        //int score = (count + 1) % 2 == 0 ? 1000 : -1000;  //without alpha beta
+        int score = (count + 1) % 2 == 0 ? beta : alpha;
+        boolean flag = (count + 1) % 2 == 0 ? true : false;
 
 
         for (int i = 0; i < playGround.getBoard().cells.length; i++) {
@@ -81,6 +82,7 @@ public class Bot5 {
                 if (playGround.getBoard().cells[i][j].content == Seed.EMPTY &&
                         !playGround.isFinished()) {
                     count++;
+                    mFlag = false;
 
                     playGround.setCurrentPlayer(seed);
 
@@ -99,52 +101,60 @@ public class Bot5 {
 
                     if ((count + 1) % 2 == 0) {
 
+
                         if (s < score) {
-                            try {
-                                fw.write("s<score " + (count + 1) + " s = " + s + ",score was " + score + " moves:" + tempMoves[0][0] + "," + tempMoves[0][1] + ";" + tempMoves[1][0] + "," + tempMoves[1][1] + ";" + tempMoves[2][0] + "," + tempMoves[2][1]);
-                                fw.write("\n\r\n");
-                            } catch (Exception e) {
-                                System.out.println("shit happens");
-                                e.printStackTrace();
-                            }
+                            flag = mFlag;
+                        } else if (s == score) {
+                            if (!mFlag) flag = false;
+                        }
+
+                        if ((count + 1) == depth || mWasFinished) {
+                            if (s <= score) flag = true;
+                        }
+
+
+                        if (s < score) {
+
                             score = s;
                             if (score < alpha) {
-                                try {
-                                    fw.write("Returning score to next level - depth=" + (count + 1) + " with alpha beta(alpha=" + alpha + ") evaluation = " + score + " moves:" + tempMoves[0][0] + "," + tempMoves[0][1] + ";" + tempMoves[1][0] + "," + tempMoves[1][1] + ";" + tempMoves[2][0] + "," + tempMoves[2][1]);
-                                    fw.write("\n\r\n");
-                                } catch (Exception e) {
-                                }
+                                mFlag = flag;
+                                mWasFinished = false;
                                 return score;
                             }
                         }
                     } else {
-                        if (s == score) {                           //not working with
+
+                        if (s > score) {
+                            flag = mFlag;
+                        } else if (s == score) {
+                            if (mFlag) flag = true;
+                        }
+                        if ((count + 1) == depth || mWasFinished) {
+                            if (s >= score) flag = true;
+                        }
+                        if (s == score && mFlag) {
                             if (count == 0) {
-                                System.out.println("s=score= "+s);  // alpha beta
                                 move[0] = tempMoves[0][0];
                                 move[1] = tempMoves[0][1];
                                 int[][] tempArr = {{move[0], move[1]}};
                                 randomMoveList.add(tempArr);
                             }
                         }
+
+
                         if (s > score) {
-                            try {
-                                fw.write("s>score, depth " + (count + 1) + " s = " + s + ",score was " + score + " moves:" + tempMoves[0][0] + "," + tempMoves[0][1] + ";" + tempMoves[1][0] + "," + tempMoves[1][1] + ";" + tempMoves[2][0] + "," + tempMoves[2][1]);
-                                fw.write("\n\r\n");
-                            } catch (Exception e) {
-                            }
+
                             score = s;
 
                             if (score > beta) {
-                                try {
-                                    fw.write("Returning score to next level - depth=" + (count + 1) + " with alpha beta(beta=" + beta + ") evaluation = " + score + " moves:" + tempMoves[0][0] + "," + tempMoves[0][1] + ";" + tempMoves[1][0] + "," + tempMoves[1][1] + ";" + tempMoves[2][0] + "," + tempMoves[2][1]);
-                                    fw.write("\n\r\n");
-                                } catch (Exception e) {
-                                }
+
+                                mFlag = flag;
+                                mWasFinished = false;
                                 return score;
+
                             }
                             if (count == 0) {
-                                System.out.println("s<score "+score);
+                                System.out.println("s>score " + score);
                                 move[0] = tempMoves[0][0];
                                 move[1] = tempMoves[0][1];
                                 randomMoveList.clear();
@@ -157,23 +167,17 @@ public class Bot5 {
 
                     }
 
-
+                    mWasFinished = false;
                 }
 
             }
+
+
         }
-        if (count == 0) {
-            try {
-                fw.write("Choosing move " + move[0] + " " + move[1] + "; with evaluation score " + score);
-                fw.write("\n\r\n");
-            } catch (IOException e) {
-            }
-        }
-        try {
-            fw.write("Returning to next level- Deapth " + (count + 1) + " evaluation = " + score + " moves:" + tempMoves[0][0] + "," + tempMoves[0][1] + ";" + tempMoves[1][0] + "," + tempMoves[1][1] + ";" + tempMoves[2][0] + "," + tempMoves[2][1]);
-            fw.write("\n\r\n");
-        } catch (Exception e) {
-        }
+
+        playGround.getBoard().cells[tempMoves[count][0]][tempMoves[count][1]].content = Seed.EMPTY;
+        mFlag = flag;
+        mWasFinished = false;
         return score;
     }
 
@@ -203,7 +207,7 @@ public class Bot5 {
      * Also detects next move win both for player and opponent
      */
 
-    public int evaluateAdvanced(SimplePlayGround playGround, Seed seed, int i, int j) {
+    public static int evaluateAdvanced(SimplePlayGround playGround, Seed seed, int i, int j) {
         int countTotalPlayer;
         boolean isWinningNextMovePlayer = false;
         boolean isWinningNextMoveOpp = false;
@@ -492,112 +496,23 @@ public class Bot5 {
     }
 
 
-    public void makeBotMove(Seed seed) {
+    public static int[] makeBotMove(Seed seed, SimplePlayGround playGround1, int depth1) {
+        playGround = playGround1;
         maximinWithAlphaBeta(-1000, 1000, seed);
+        depth = depth1;
+        int i = (int) (Math.random() * randomMoveList.size());
+        System.out.println("size of randomMoveList =" + randomMoveList.size());
+        move[0] = randomMoveList.get(i)[0][0];
+        move[1] = randomMoveList.get(i)[0][1];
+        for (int j = 0; j < randomMoveList.size(); j++) {
+            System.out.println(randomMoveList.get(j)[0][0] + "," + randomMoveList.get(j)[0][1]);
 
-//        int score = 0;
-//       for (int i = 0; i < playGround.getBoard().cells.length; i++) {
-//            for (int j = 0; j < playGround.getBoard().cells[i].length; j++) {
-//                if (playGround.getBoard().cells[i][j].content == Seed.EMPTY) {
-//                    int temp = evaluateAdvanced(playGround, seed, i, j);
-//                    if (temp > score) {
-//                        score = temp;
-//                        move[0] = i;
-//                        move[1] = j;
-//                    }
-//
-//                }
-//            }
-//        }
-        int i = (int)(Math.random()*randomMoveList.size());
-        System.out.println("i=" +randomMoveList.size());
-        move[0]=randomMoveList.get(i)[0][0];
-        move[1]= randomMoveList.get(i)[0][1];
+        }
         System.out.println(playGround.doStep(move[0], move[1]));
-
-
-    }
-
-    public void start() {
-        this.playGround.start();
-        //playGround.getBoard().cells[0][2].content=Seed.CROSS;
-        //playGround.getBoard().cells[1][2].content=Seed.CROSS;
-        //playGround.getBoard().cells[2][2].content=Seed.CROSS;
-        //playGround.getBoard().cells[5][2].content=Seed.NOUGHT;
-        System.out.println("Initital pos...");
-        System.out.println(playGround.print());
-        try {
-            fw = new FileWriter("d:/JavaTemp/bot5.txt");
-        } catch (IOException e) {
-        }
-
+        return move;
 
     }
 
-    public void play() {
-        int count = 0;
-        Scanner scan = new Scanner(System.in);
-        System.out.println("Game starting... Press Enter");
-        System.out.println(playGround.print());
 
-        do {
-            System.out.println("******************************");
-            scan.nextLine();
-            try {
-                fw.write("*****************************************");
-                fw.write("\n\r\n");
-                fw.write(" M O V E :" + ++count);
-                fw.write("\n\r\n");
-
-
-            } catch (Exception e) {
-            }
-
-            if (!playGround.isFinished()) {
-                System.out.println("Your move...");
-                int a;
-                int b;
-                do {
-                    a = scan.nextInt();
-                    b = scan.nextInt();
-                    State state = playGround.doStep(a, b);
-                    if (state == State.INVALID_INPUT_DATA) {
-                        System.out.println("Сдейлай нормальный ход");
-                    } else {
-                        System.out.println(state);
-                        break;
-                    }
-                } while (playGround.getCurrentPlayer() == Seed.NOUGHT);
-                System.out.println("**********************************");
-                System.out.println(playGround.print());
-                System.out.println("***********************************");
-            }
-            if (!playGround.isFinished()) {
-                makeBotMove(Seed.NOUGHT);
-                System.out.println("CPU MOVE");
-                System.out.println("Current player- " + playGround.getCurrentPlayer());
-                System.out.println(this.playGround.print());
-                System.out.println("*********************************");
-            }
-
-
-        } while (!playGround.isFinished());
-        scan.close();
-        try {
-            fw.close();
-        } catch (IOException e) {
-        }
-    }
-
-    public static void main(String[] args) {
-
-        Bot5 bot5 = new Bot5();
-        bot5.start();
-        System.out.println(bot5.tempMoves[0][0] + "," + bot5.tempMoves[0][1]);
-        bot5.play();
-
-
-    }
 }
-
 
