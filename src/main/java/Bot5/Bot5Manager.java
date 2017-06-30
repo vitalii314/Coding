@@ -11,9 +11,9 @@ import java.util.Scanner;
  */
 public class Bot5Manager {
 
-    private SimplePlayGround playGround = new SimplePlayGround(10, 10, 5);
+    private SimplePlayGround playGround = new SimplePlayGround(3, 3, 3);
     private int[] move = new int[2];
-    private int depth = 3;
+    private int depth = 8;
     public void play() {
         int count = 0;
         Scanner scan = new Scanner(System.in);
@@ -45,10 +45,15 @@ public class Bot5Manager {
                 System.out.println("***********************************");
             }
             if (!playGround.isFinished()) {
+                long start = System.nanoTime();
                 move=Bot5.makeBotMove(Seed.NOUGHT, playGround, depth);
+                long finish = System.nanoTime();
+                System.out.println("Time = " + (finish-start));
+                System.out.println("Number of rec = " + Bot5.totalRecCount);
+                System.out.println("Number of returnings = " + Bot5.totalReturnCount);
                 System.out.println("size of randomMoveList =" + Bot5.randomMoveList.size());
                 for (int j = 0; j < Bot5.randomMoveList.size(); j++) {
-                    System.out.println(Bot5.randomMoveList.get(j)[0][0] + "," + Bot5.randomMoveList.get(j)[0][1]);
+                    System.out.print(Bot5.randomMoveList.get(j)[0][0] + "," + Bot5.randomMoveList.get(j)[0][1]+ ";");
 
                 }
                 playGround.doStep(move[0],move[1]);

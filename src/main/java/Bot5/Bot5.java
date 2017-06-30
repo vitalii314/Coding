@@ -18,6 +18,8 @@ import java.util.List;
  * Max recommended depth for playground 10x10 with 5 in row to win - 3
  */
 public  class Bot5 implements Playable {
+    public static int totalRecCount = 0;
+    public static int totalReturnCount = 0;
     static List<int[][]> randomMoveList = new ArrayList<int[][]>();
     private static int depth = 3;
     private static SimplePlayGround playGround;
@@ -76,8 +78,8 @@ public  class Bot5 implements Playable {
                     seed == Seed.CROSS ? Seed.NOUGHT : Seed.CROSS, tempMoves[count - 1][0], tempMoves[count - 1][1]);
         }
 
-        //int score = (count + 1) % 2 == 0 ? 1000 : -1000;  //without alpha beta
-        int score = (count + 1) % 2 == 0 ? beta : alpha;
+        int score = (count + 1) % 2 == 0 ? 1000 : -1000;  //without alpha beta
+        //int score = (count + 1) % 2 == 0 ? beta : alpha;
         boolean flag = (count + 1) % 2 == 0 ? true : false;
 
 
@@ -86,6 +88,7 @@ public  class Bot5 implements Playable {
                 if (playGround.getBoard().cells[i][j].content == Seed.EMPTY &&
                         !playGround.isFinished()) {
                     count++;
+                    totalRecCount++;
                     mFlag = false;
 
                     playGround.setCurrentPlayer(seed);
@@ -118,11 +121,13 @@ public  class Bot5 implements Playable {
 
                         if (s < score) {
                             score = s;
-                            if (score < alpha) {
-                                mFlag = flag;
-                                mWasFinished = false;
-                                return score;
-                            }
+                        }
+
+                        if (score < alpha) {
+                            mFlag = flag;
+                            mWasFinished = false;
+                            totalReturnCount++;
+                            return score;
                         }
                     } else {
 
@@ -148,13 +153,7 @@ public  class Bot5 implements Playable {
 
                             score = s;
 
-                            if (score > beta) {
 
-                                mFlag = flag;
-                                mWasFinished = false;
-                                return score;
-
-                            }
                             if (count == 0) {
                                 move[0] = tempMoves[0][0];
                                 move[1] = tempMoves[0][1];
@@ -163,6 +162,13 @@ public  class Bot5 implements Playable {
                                 randomMoveList.add(tempArr);
 
                             }
+
+                        }
+                        if (score > beta) {
+                            mFlag = flag;
+                            mWasFinished = false;
+                            totalReturnCount++;
+                            return score;
 
                         }
 
